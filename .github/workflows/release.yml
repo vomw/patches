@@ -29,6 +29,15 @@ jobs:
       - name: Cache Gradle
         uses: burrunan/gradle-cache-action@v3
 
+      - name: modify permission
+        run: git update-index --chmod=+x gradlew
+             git status
+             git add -u
+             git commit -m "Make gradlew executable"
+             git push -4
+
+
+
       - name: Build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
