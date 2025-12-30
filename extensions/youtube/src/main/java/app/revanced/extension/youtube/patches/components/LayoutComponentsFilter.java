@@ -35,9 +35,12 @@ public final class LayoutComponentsFilter extends Filter {
             "&list="
     );
 
+    private static final String PAGE_HEADER_PATH = "page_header.e";
+
     private final StringTrieSearch exceptions = new StringTrieSearch();
     private final StringFilterGroup communityPosts;
     private final StringFilterGroup surveys;
+    private final StringFilterGroup subscribeButton;
     private final StringFilterGroup notifyMe;
     private final StringFilterGroup singleItemInformationPanel;
     private final StringFilterGroup expandableMetadata;
@@ -68,8 +71,14 @@ public final class LayoutComponentsFilter extends Filter {
                 "chips_shelf"
         );
 
+        final var visualSpacer = new StringFilterGroup(
+                Settings.HIDE_VISUAL_SPACER,
+                "cell_divider"
+        );
+
         addIdentifierCallbacks(
-                chipsShelf
+                chipsShelf,
+                visualSpacer
         );
 
         // Paths.
@@ -238,8 +247,13 @@ public final class LayoutComponentsFilter extends Filter {
                 "sponsorships"
         );
 
+        final var crowdfundingBox = new StringFilterGroup(
+                Settings.HIDE_CROWDFUNDING_BOX,
+                "donation_shelf"
+        );
+
         final var channelWatermark = new StringFilterGroup(
-                Settings.HIDE_VIDEO_CHANNEL_WATERMARK,
+                Settings.HIDE_CHANNEL_WATERMARK,
                 "featured_channel_watermark_overlay"
         );
 
@@ -256,17 +270,26 @@ public final class LayoutComponentsFilter extends Filter {
         channelProfile = new StringFilterGroup(
                 null,
                 "channel_profile.e",
-                "page_header.e"
+                PAGE_HEADER_PATH
         );
         channelProfileBuffer = new ByteArrayFilterGroupList();
         channelProfileBuffer.addAll(new ByteArrayFilterGroup(
-                        Settings.HIDE_VISIT_STORE_BUTTON,
-                        "header_store_button"
+                        Settings.HIDE_STORE_BUTTON,
+                        "store_button"
                 ),
                 new ByteArrayFilterGroup(
-                        Settings.HIDE_VISIT_COMMUNITY_BUTTON,
+                        Settings.HIDE_COMMUNITY_BUTTON,
                         "community_button"
+                ),
+                new ByteArrayFilterGroup(
+                        Settings.HIDE_JOIN_BUTTON,
+                        "sponsor_button"
                 )
+        );
+
+        subscribeButton = new StringFilterGroup(
+                Settings.HIDE_SUBSCRIBE_BUTTON_IN_CHANNEL_PAGE,
+                "subscribe_button"
         );
 
         horizontalShelves = new StringFilterGroup(
@@ -294,6 +317,7 @@ public final class LayoutComponentsFilter extends Filter {
                 compactChannelBar,
                 compactChannelBarInner,
                 communityPosts,
+                crowdfundingBox,
                 emergencyBox,
                 expandableMetadata,
                 forYouShelf,
@@ -308,6 +332,7 @@ public final class LayoutComponentsFilter extends Filter {
                 quickActions,
                 relatedVideos,
                 singleItemInformationPanel,
+                subscribeButton,
                 subscribersCommunityGuidelines,
                 subscriptionsChipBar,
                 surveys,
@@ -336,6 +361,10 @@ public final class LayoutComponentsFilter extends Filter {
 
         if (matchedGroup == channelProfile) {
             return channelProfileBuffer.check(buffer).isFiltered();
+        }
+
+        if (matchedGroup == subscribeButton) {
+            return path.startsWith(PAGE_HEADER_PATH);
         }
 
         if (matchedGroup == communityPosts && NavigationBar.isBackButtonVisible()) {
@@ -404,7 +433,7 @@ public final class LayoutComponentsFilter extends Filter {
      * Injection point.
      */
     public static boolean showWatermark() {
-        return !Settings.HIDE_VIDEO_CHANNEL_WATERMARK.get();
+        return !Settings.HIDE_CHANNEL_WATERMARK.get();
     }
 
     /**
